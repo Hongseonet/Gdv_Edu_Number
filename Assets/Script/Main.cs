@@ -13,9 +13,14 @@ public class Main : MonoBehaviour
     TextMeshProUGUI txtTime;
 
     [SerializeField]
-    Button btnClose, btnTTS, btnTheme;
+    TMP_InputField inpTxt;
+
+    [SerializeField]
+    Transform btnList;
 
     bool isThemeDark, isQuit, isTTSPlay;
+
+    int decimalNum; //limit 12
 
     AudioSource audioSource;
     Queue<AudioClip> queueAudio; //hour min min sec sec
@@ -24,7 +29,16 @@ public class Main : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        inpTxt.onValueChanged.AddListener((x) => InputEvernt(inpTxt));
 
+        foreach(Transform btnEle in btnList)
+        {
+            if(btnEle.GetComponent<Button>() != null)
+            {
+                Button btn = btnEle.GetComponent<Button>();
+                btn.onClick.AddListener(() => BtnEvent(btn));
+            }
+        }
     }
 
     // Update is called once per frame
@@ -52,7 +66,51 @@ public class Main : MonoBehaviour
 
     void BtnEvent(Button btn)
     {
+        switch (btn.name.Split('_')[1]) //serialized button name
+        {
+            case "Close":
 
+                break;
+            case "TTS":
+
+                break;
+            case "Random":
+                System.Random rand = new System.Random();
+                decimalNum = rand.Next(0, 1000000);
+                SetInputField();
+                break;
+            case "Theme":
+
+                break;
+            case "Plus":
+                IncreaseInput(true);
+                SetInputField();
+                break;
+            case "Minus":
+                IncreaseInput(false);
+                SetInputField();
+                break;
+        }
+    }
+
+    void InputEvernt(TMP_InputField inp)
+    {
+        decimalNum = int.Parse(inp.text.ToString());
+
+        Debug.Log("dd " + decimalNum);
+    }
+
+    void IncreaseInput(bool isIncrease)
+    {
+        if (isIncrease)
+            decimalNum++;
+        else if(!isIncrease && decimalNum > 0)
+            decimalNum--;
+    }
+
+    void SetInputField()
+    {
+        inpTxt.text = decimalNum.ToString();
     }
 
     //IEnumerator GetTTS(string filePath)
