@@ -71,7 +71,25 @@ public class Main : MonoBehaviour
             case "Close":
 
                 break;
-            case "TTS":
+            case "TTSF": //tts full
+                Stack<string> arrTTS = new Stack<string>();
+                char[] strTTS = decimalNum.ToString().ToCharArray();
+
+                for(int i = strTTS.Length - 1; i > -1; i--)
+                {
+
+                    Debug.Log("dd " + strTTS[i]);
+
+                    if(i == 0) //end digit
+                    {
+                        //arrTTS.Push("");
+                    }
+                        
+                }
+
+                //GetTTS("");
+                break;
+            case "TTSS": //tts simple
 
                 break;
             case "Random":
