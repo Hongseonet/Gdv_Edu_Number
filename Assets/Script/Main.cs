@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -20,18 +21,19 @@ public class Main : MonoBehaviour
 
     bool isThemeDark, isQuit, isTTSPlay;
 
-    int decimalNum; //limit 12
+    int decimalNum; //limit 10
 
     AudioSource audioSource;
     Queue<AudioClip> queueAudio; //hour min min sec sec
 
-
     // Start is called before the first frame update
     void Start()
     {
-        inpTxt.onValueChanged.AddListener((x) => InputEvernt(inpTxt));
+        queueAudio = new Queue<AudioClip>();
+        audioSource = this.GetComponent<AudioSource>();
 
-        foreach(Transform btnEle in btnList)
+        inpTxt.onValueChanged.AddListener((x) => InputEvernt(inpTxt));
+        foreach (Transform btnEle in btnList)
         {
             if(btnEle.GetComponent<Button>() != null)
             {
@@ -50,7 +52,6 @@ public class Main : MonoBehaviour
         }
 
     }
-
     IEnumerator QuitApp()
     {
         if (isQuit)
@@ -69,32 +70,59 @@ public class Main : MonoBehaviour
         switch (btn.name.Split('_')[1]) //serialized button name
         {
             case "Close":
-
+                StartCoroutine(QuitApp());
                 break;
             case "TTSF": //tts full
                 Stack<string> arrTTS = new Stack<string>();
+                double weight = 0;
+                int loopIdx = 0;
                 char[] strTTS = decimalNum.ToString().ToCharArray();
 
-                for(int i = strTTS.Length - 1; i > -1; i--)
+                for(int i = strTTS.Length - 1; i > -1; --i)
                 {
-
-                    Debug.Log("dd " + strTTS[i]);
-
-                    if(i == 0) //end digit
+                    //Debug.Log("arr " + strTTS[i]);
+                    switch (loopIdx)
                     {
-                        //arrTTS.Push("");
+                        case 0:
+                            arrTTS.Push(strTTS[i].ToString());
+                            break;
+                        default:
+                            for (int z = 0; z < loopIdx; z++)
+                                weight = Math.Pow(10, z + 1);
+                            arrTTS.Push(weight.ToString());
+                            arrTTS.Push(strTTS[i].ToString());
+                            break;
                     }
-                        
+                    loopIdx++;
                 }
 
-                //GetTTS("");
+                loopIdx = arrTTS.Count;
+                string filePath = "";
+
+                if (Application.platform.Equals(RuntimePlatform.Android))
+                {
+                    //filePath = "jar:file://" + Application.dataPath + "!/assets/";
+                    filePath = "jar:file://" + Application.streamingAssetsPath;
+                }
+                else if (Application.platform.Equals(RuntimePlatform.WindowsEditor))
+                {
+                    filePath = Application.streamingAssetsPath;
+                }
+
+                for (int i=0; i<loopIdx; i++)
+                {
+                    //Debug.Log("final TTS " + arrTTS.Pop());
+                    GetTTS(Path.Combine(filePath + "/TTS/Num/narr_" + arrTTS.Pop() + ".wav"));
+                }
+                StartCoroutine(PlayTTS());
+
                 break;
             case "TTSS": //tts simple
-
+                Debug.Log("not yet");
                 break;
             case "Random":
                 System.Random rand = new System.Random();
-                decimalNum = rand.Next(0, 1000000);
+                decimalNum = rand.Next(0, 1000000000);
                 SetInputField();
                 break;
             case "Theme":
@@ -108,14 +136,15 @@ public class Main : MonoBehaviour
                 IncreaseInput(false);
                 SetInputField();
                 break;
+            case "Reset":
+                inpTxt.text = "0"; //clear to zero
+                break;
         }
     }
-
     void InputEvernt(TMP_InputField inp)
     {
         decimalNum = int.Parse(inp.text.ToString());
-
-        Debug.Log("dd " + decimalNum);
+        //Debug.Log("dd " + decimalNum);
     }
 
     void IncreaseInput(bool isIncrease)
