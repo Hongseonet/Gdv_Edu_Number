@@ -1,0 +1,8 @@
+D:/Work/GenieDev/Gdv_Edu_Number/.utmp/RelWithDebInfo/4t4ik3b3/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/Work/GenieDev/Gdv_Edu_Number/.utmp/RelWithDebInfo/4t4ik3b3/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+D:/Work/GenieDev/Gdv_Edu_Number/.utmp/RelWithDebInfo/4t4ik3b3/armeabi-v7a/GameActivity/CMakeFiles/game.dir
+D:/Work/GenieDev/Gdv_Edu_Number/.utmp/RelWithDebInfo/4t4ik3b3/armeabi-v7a/GameActivity/CMakeFiles/edit_cache.dir
+D:/Work/GenieDev/Gdv_Edu_Number/.utmp/RelWithDebInfo/4t4ik3b3/armeabi-v7a/GameActivity/CMakeFiles/rebuild_cache.dir
+D:/Work/GenieDev/Gdv_Edu_Number/.utmp/RelWithDebInfo/4t4ik3b3/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir
+D:/Work/GenieDev/Gdv_Edu_Number/.utmp/RelWithDebInfo/4t4ik3b3/armeabi-v7a/FramePacing/CMakeFiles/edit_cache.dir
+D:/Work/GenieDev/Gdv_Edu_Number/.utmp/RelWithDebInfo/4t4ik3b3/armeabi-v7a/FramePacing/CMakeFiles/rebuild_cache.dir

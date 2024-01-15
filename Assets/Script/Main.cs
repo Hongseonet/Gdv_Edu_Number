@@ -11,9 +11,6 @@ using UnityEngine.UI;
 public class Main : MonoBehaviour
 {
     [SerializeField]
-    TextMeshProUGUI txtTime;
-
-    [SerializeField]
     TMP_InputField inpTxt;
 
     [SerializeField]
@@ -23,12 +20,16 @@ public class Main : MonoBehaviour
 
     int decimalNum; //limit 10
 
+    string muteAudio = "mute_halfsec";
+
     AudioSource audioSource;
     Queue<AudioClip> queueAudio; //hour min min sec sec
+
 
     // Start is called before the first frame update
     void Start()
     {
+        isThemeDark = true;
         queueAudio = new Queue<AudioClip>();
         audioSource = this.GetComponent<AudioSource>();
 
@@ -65,7 +66,7 @@ public class Main : MonoBehaviour
         isQuit = !isQuit;
     }
 
-    void BtnEvent(Button btn)
+    public void BtnEvent(Button btn)
     {
         switch (btn.name.Split('_')[1]) //serialized button name
         {
@@ -89,8 +90,13 @@ public class Main : MonoBehaviour
                         default:
                             for (int z = 0; z < loopIdx; z++)
                                 weight = Math.Pow(10, z + 1);
-                            arrTTS.Push(weight.ToString());
-                            arrTTS.Push(strTTS[i].ToString());
+
+                            if (!strTTS[i].ToString().Equals("0"))
+                            {
+                                arrTTS.Push(weight.ToString());
+                                arrTTS.Push(strTTS[i].ToString());
+                                arrTTS.Push(" "); //insert mute 0.5sec
+                            }
                             break;
                     }
                     loopIdx++;
@@ -112,7 +118,13 @@ public class Main : MonoBehaviour
                 for (int i=0; i<loopIdx; i++)
                 {
                     //Debug.Log("final TTS " + arrTTS.Pop());
-                    GetTTS(Path.Combine(filePath + "/TTS/Num/narr_" + arrTTS.Pop() + ".wav"));
+                    if(!arrTTS.Peek().Equals(" "))
+                        GetTTS(Path.Combine(filePath + "/TTS/Num/narr_" + arrTTS.Pop() + ".wav"));
+                    else
+                    {
+                        arrTTS.Pop();
+                        GetTTS(Path.Combine(filePath + "/TTS/Num/" + muteAudio + ".wav"));
+                    }
                 }
                 StartCoroutine(PlayTTS());
 
@@ -139,6 +151,18 @@ public class Main : MonoBehaviour
             case "Reset":
                 inpTxt.text = "0"; //clear to zero
                 break;
+            case "Num":
+                //input number manualy
+                int numpad;
+
+                if(int.TryParse(btn.name.Split('_')[2], out numpad))
+                {
+                    string tmpStr = decimalNum.ToString() + numpad.ToString();
+                    decimalNum = int.Parse(tmpStr);
+
+                    SetInputField();
+                }
+                break;
         }
     }
     void InputEvernt(TMP_InputField inp)
@@ -157,6 +181,8 @@ public class Main : MonoBehaviour
 
     void SetInputField()
     {
+        //insert comma on each 3 digit
+
         inpTxt.text = decimalNum.ToString();
     }
 
