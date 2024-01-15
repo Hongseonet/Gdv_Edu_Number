@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
@@ -32,6 +31,8 @@ public class Main : MonoBehaviour
         isThemeDark = true;
         queueAudio = new Queue<AudioClip>();
         audioSource = this.GetComponent<AudioSource>();
+
+        GetJsonParse();
 
         inpTxt.onValueChanged.AddListener((x) => InputEvernt(inpTxt));
         foreach (Transform btnEle in btnList)
@@ -221,6 +222,22 @@ public class Main : MonoBehaviour
         }
     }
 
+    void GetJsonParse()
+    {
+        FileStream fs = new FileStream(Application.streamingAssetsPath + "/Decimal_Read.json", FileMode.Open); // 경로에 있는 파일을 열어주고,
+        StreamReader stream = new StreamReader(fs);
+
+        string data = stream.ReadToEnd();
+
+        Debug.Log("raw " + data);
+
+        JsonSerialize abc = JsonUtility.FromJson<JsonSerialize>(data); //Json data를 MissionInfor 타입으로 변환해준다.
+        stream.Close(); // 사용 후에는 꼭 닫아준다.
+
+        Debug.Log("dd " + abc.arrdecimal.Length);
+        Debug.Log("dd " + abc.arrunit.Length);
+    }
+
     IEnumerator PlayTTS()
     {
         if (!isTTSPlay)
@@ -244,4 +261,10 @@ public class Main : MonoBehaviour
         }
     }
 
+}
+
+class JsonSerialize
+{
+    public string[] arrdecimal;
+    public string[] arrunit;
 }
