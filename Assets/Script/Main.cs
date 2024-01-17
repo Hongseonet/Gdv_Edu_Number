@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -10,7 +11,7 @@ using UnityEngine.UI;
 public class Main : MonoBehaviour
 {
     [SerializeField]
-    TMP_InputField inpTxt;
+    TMP_InputField inpTxt, readTxt;
 
     [SerializeField]
     Transform btnList;
@@ -183,8 +184,17 @@ public class Main : MonoBehaviour
     void SetInputField()
     {
         //insert comma on each 3 digit
+        IEnumerable groups = decimalNum.ToString().Select((c, idx) => new { Char = c, Index = idx })
+        .GroupBy(x => x.Index / 3)
+        .Select(g => String.Concat(g.Select(x => x.Char)));
 
-        inpTxt.text = decimalNum.ToString();
+        string result = string.Join(",", groups);
+
+        //Debug.Log("red " + result);
+        inpTxt.text = result.ToString();
+
+        //read decimal korean
+        readTxt.text = "";
     }
 
     //IEnumerator GetTTS(string filePath)
@@ -224,18 +234,18 @@ public class Main : MonoBehaviour
 
     void GetJsonParse()
     {
-        FileStream fs = new FileStream(Application.streamingAssetsPath + "/Decimal_Read.json", FileMode.Open); // 경로에 있는 파일을 열어주고,
+        FileStream fs = new FileStream(Application.streamingAssetsPath + "/Decimal_Read.json", FileMode.Open);
         StreamReader stream = new StreamReader(fs);
 
         string data = stream.ReadToEnd();
 
         Debug.Log("raw " + data);
 
-        JsonSerialize abc = JsonUtility.FromJson<JsonSerialize>(data); //Json data를 MissionInfor 타입으로 변환해준다.
-        stream.Close(); // 사용 후에는 꼭 닫아준다.
+        JsonSerialize abc = JsonUtility.FromJson<JsonSerialize>(data);
+        stream.Close();
 
-        Debug.Log("dd " + abc.arrdecimal.Length);
-        Debug.Log("dd " + abc.arrunit.Length);
+        //Debug.Log("dd " + abc.arrdecimal.Length);
+        //Debug.Log("dd " + abc.arrunit.Length);
     }
 
     IEnumerator PlayTTS()
@@ -265,6 +275,6 @@ public class Main : MonoBehaviour
 
 class JsonSerialize
 {
-    public string[] arrdecimal;
-    public string[] arrunit;
+    public string[] arrdecimal; //1 to 9
+    public string[] arrunit; //10 to 1000000000000
 }
