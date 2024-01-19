@@ -24,6 +24,10 @@ public class Main : MonoBehaviour
 
     AudioSource audioSource;
     Queue<AudioClip> queueAudio; //hour min min sec sec
+    Stack<string> arrTTS;
+
+    Dictionary<string, string> arrdecimal; //json sserialize
+    Dictionary<string, string> arrunit; //json serialize
 
 
     // Start is called before the first frame update
@@ -76,35 +80,8 @@ public class Main : MonoBehaviour
                 StartCoroutine(QuitApp());
                 break;
             case "TTSF": //tts full
-                Stack<string> arrTTS = new Stack<string>();
-                double weight = 0;
-                int loopIdx = 0;
-                char[] strTTS = decimalNum.ToString().ToCharArray();
 
-                for(int i = strTTS.Length - 1; i > -1; --i)
-                {
-                    //Debug.Log("arr " + strTTS[i]);
-                    switch (loopIdx)
-                    {
-                        case 0:
-                            arrTTS.Push(strTTS[i].ToString());
-                            break;
-                        default:
-                            for (int z = 0; z < loopIdx; z++)
-                                weight = Math.Pow(10, z + 1);
-
-                            if (!strTTS[i].ToString().Equals("0"))
-                            {
-                                arrTTS.Push(weight.ToString());
-                                arrTTS.Push(strTTS[i].ToString());
-                                arrTTS.Push(" "); //insert mute 0.5sec
-                            }
-                            break;
-                    }
-                    loopIdx++;
-                }
-
-                loopIdx = arrTTS.Count;
+                int loopIdx = MakeTTS();
                 string filePath = "";
 
                 if (Application.platform.Equals(RuntimePlatform.Android))
@@ -169,8 +146,15 @@ public class Main : MonoBehaviour
     }
     void InputEvernt(TMP_InputField inp)
     {
-        decimalNum = int.Parse(inp.text.ToString());
-        //Debug.Log("dd " + decimalNum);
+        Debug.Log("dd " + inp.text);
+        
+        string[] tmpStr = inp.text.Split(',');
+        string cvtStr = "";
+
+        for (int i = 0; i < tmpStr.Length; i++)
+            cvtStr += tmpStr[i];
+        
+        decimalNum = int.Parse(cvtStr);
     }
 
     void IncreaseInput(bool isIncrease)
@@ -183,18 +167,47 @@ public class Main : MonoBehaviour
 
     void SetInputField()
     {
-        //insert comma on each 3 digit
-        IEnumerable groups = decimalNum.ToString().Select((c, idx) => new { Char = c, Index = idx })
-        .GroupBy(x => x.Index / 3)
-        .Select(g => String.Concat(g.Select(x => x.Char)));
+        //Debug.Log("random : " + decimalNum.ToString("n0"));
+        inpTxt.text = decimalNum.ToString("n0");
 
-        string result = string.Join(",", groups);
-
-        //Debug.Log("red " + result);
-        inpTxt.text = result.ToString();
+        //for(int i=0; i< arrTTS)
 
         //read decimal korean
         readTxt.text = "";
+    }
+
+    int MakeTTS()
+    {
+        arrTTS = new Stack<string>();
+
+        double weight = 0;
+        int loopIdx = 0;
+        char[] strTTS = decimalNum.ToString().ToCharArray();
+
+        for (int i = strTTS.Length - 1; i > -1; --i)
+        {
+            //Debug.Log("arr " + strTTS[i]);
+            switch (loopIdx)
+            {
+                case 0:
+                    arrTTS.Push(strTTS[i].ToString());
+                    break;
+                default:
+                    for (int z = 0; z < loopIdx; z++)
+                        weight = Math.Pow(10, z + 1);
+
+                    if (!strTTS[i].ToString().Equals("0"))
+                    {
+                        arrTTS.Push(weight.ToString());
+                        arrTTS.Push(strTTS[i].ToString());
+                        arrTTS.Push(" "); //insert mute 0.5sec
+                    }
+                    break;
+            }
+            loopIdx++;
+        }
+
+        return arrTTS.Count;
     }
 
     //IEnumerator GetTTS(string filePath)
@@ -238,14 +251,25 @@ public class Main : MonoBehaviour
         StreamReader stream = new StreamReader(fs);
 
         string data = stream.ReadToEnd();
+        //Debug.Log("raw " + data);
 
-        Debug.Log("raw " + data);
-
-        JsonSerialize abc = JsonUtility.FromJson<JsonSerialize>(data);
+        JsonSerialize jsonSerialize = JsonUtility.FromJson<JsonSerialize>(data);
         stream.Close();
 
-        //Debug.Log("dd " + abc.arrdecimal.Length);
-        //Debug.Log("dd " + abc.arrunit.Length);
+        arrdecimal = new Dictionary<string, string>();
+        arrunit = new Dictionary<string, string>();
+
+        for(int i = 0; i < jsonSerialize.arrdecimal.Length; i++)
+        {
+            arrdecimal.Add(i.ToString(), jsonSerialize.arrdecimal[i]);
+        }
+
+        double weight = 0;
+        for(int i = 0; i < jsonSerialize.arrunit.Length; i++)
+        {
+            weight = Math.Pow(10, i + 1);
+            arrunit.Add(weight.ToString(), jsonSerialize.arrunit[i]);
+        }
     }
 
     IEnumerator PlayTTS()
@@ -270,7 +294,6 @@ public class Main : MonoBehaviour
             isTTSPlay = false;
         }
     }
-
 }
 
 class JsonSerialize
