@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -11,14 +10,14 @@ using UnityEngine.UI;
 public class Main : MonoBehaviour
 {
     [SerializeField]
-    TMP_InputField inpTxt, readTxt;
+    TMP_InputField inpDecimal, txtDecimal, inpDigit;
 
     [SerializeField]
     Transform btnList;
 
     bool isThemeDark, isQuit, isTTSPlay;
 
-    int decimalNum; //limit 10
+    double decimalNum; //limit 10
 
     string muteAudio = "mute_halfsec";
 
@@ -39,7 +38,9 @@ public class Main : MonoBehaviour
 
         GetJsonParse();
 
-        inpTxt.onValueChanged.AddListener((x) => InputEvernt(inpTxt));
+        inpDecimal.onValueChanged.AddListener((x) => InputEvernt(inpDecimal));
+        inpDigit.onValueChanged.AddListener((x) => InputEvernt(inpDigit));
+
         foreach (Transform btnEle in btnList)
         {
             if(btnEle.GetComponent<Button>() != null)
@@ -128,16 +129,16 @@ public class Main : MonoBehaviour
                 SetInputField();
                 break;
             case "Reset":
-                inpTxt.text = "0"; //clear to zero
+                inpDecimal.text = "0"; //clear to zero
                 break;
             case "Num":
                 //input number manualy
-                int numpad;
+                double numpad;
 
-                if(int.TryParse(btn.name.Split('_')[2], out numpad))
+                if(double.TryParse(btn.name.Split('_')[2], out numpad))
                 {
                     string tmpStr = decimalNum.ToString() + numpad.ToString();
-                    decimalNum = int.Parse(tmpStr);
+                    decimalNum = double.Parse(tmpStr);
 
                     SetInputField();
                 }
@@ -146,7 +147,7 @@ public class Main : MonoBehaviour
     }
     void InputEvernt(TMP_InputField inp)
     {
-        Debug.Log("dd " + inp.text);
+        Debug.Log("input " + inp.text);
         
         string[] tmpStr = inp.text.Split(',');
         string cvtStr = "";
@@ -154,7 +155,7 @@ public class Main : MonoBehaviour
         for (int i = 0; i < tmpStr.Length; i++)
             cvtStr += tmpStr[i];
         
-        decimalNum = int.Parse(cvtStr);
+        decimalNum = double.Parse(cvtStr);
     }
 
     void IncreaseInput(bool isIncrease)
@@ -168,12 +169,12 @@ public class Main : MonoBehaviour
     void SetInputField()
     {
         //Debug.Log("random : " + decimalNum.ToString("n0"));
-        inpTxt.text = decimalNum.ToString("n0");
+        inpDecimal.text = decimalNum.ToString("n0");
 
         //for(int i=0; i< arrTTS)
 
         //read decimal korean
-        readTxt.text = "";
+        txtDecimal.text = "";
     }
 
     int MakeTTS()
